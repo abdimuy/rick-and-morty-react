@@ -23,6 +23,25 @@ export default css`
 
   .characters__search-section {
     display: flex;
-    gap: 15px
+    gap: 15px;
+    align-items: center;
+  }
+
+  .characters__search-section-nav {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    width: -webkit-fill-available;
+    justify-content: space-between;
+    padding: 0 15px
+  }
+
+  .characters__search-section-pagination {
+    color: #b4a1a1;
+    font-size: 20px;
+
+    span {
+      color: #b4a1a1
+    }
   }
 `

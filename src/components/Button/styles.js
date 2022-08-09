@@ -10,4 +10,9 @@ export default css`
   background-color: #2d7ccb;
   font-size: 16px;
   cursor: pointer;
+  ${({ disabled }) => disabled && `
+    background-color: #143c64;
+    color: gray;
+    cursor: default;
+  `}
 `

@@ -7,22 +7,24 @@ import styles from './styles'
 import getCharacters from '../../services/characters/getCharacters'
 import { useSelector, useDispatch } from 'react-redux'
 import { addCharacters } from '../../feactures/characters/charactersSlice'
-// import { useLocation } from 'react-router-dom'
 
 const SearchCharacters = ({ className }) => {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [name, setName] = useState()
-  // const [characters, loading] = useGetCharacters({ name: { key: 'name', val: name } })
-  // const location = useLocation()
-  // console.log(new URLSearchParams(location.search))
+  const [infoPage, setInfoPage] = useState()
+  const [page, setPage] = useState()
   const characters = useSelector(state => state.characters)
   const dispatch = useDispatch()
 
   const handleGetCharacters = async (name) => {
     try {
       setLoading(true)
-      const charactersData = await getCharacters({ name: { key: 'name', val: name } })
+      const [charactersData, infoRes] = await getCharacters({
+        name: { key: 'name', val: name },
+        page: { key: 'page', val: page }
+      })
+      setInfoPage(infoRes)
       dispatch(addCharacters(charactersData))
     } catch (err) {
       console.log(err)
@@ -32,7 +34,25 @@ const SearchCharacters = ({ className }) => {
   useEffect(() => {
     handleGetCharacters(name)
     // eslint-disable-next-line
+  }, [name, page])
+
+  useEffect(() => {
+    if (name) {
+      setPage(1)
+    }
   }, [name])
+
+  useEffect(() => {
+    if (infoPage) {
+      setPage(
+        infoPage.next !== null
+          ? parseInt(new URL(infoPage.next).searchParams.get('page')) - 1
+          : infoPage.prev !== null
+            ? parseInt(new URL(infoPage.prev).searchParams.get('page')) + 1
+            : 1
+      )
+    }
+  }, [infoPage])
 
   const handleInputChange = (e) => {
     const { target: { value } } = e
@@ -40,7 +60,6 @@ const SearchCharacters = ({ className }) => {
   }
 
   const handleSubmit = () => {
-    // setSearch(input.current.target.value)
     setName(search)
   }
 
@@ -53,9 +72,25 @@ const SearchCharacters = ({ className }) => {
         <Input ph='Search...' value={search} onChange={handleInputChange} />
         <Button onClick={handleSubmit} text='Search' />
       </div>
+      <div className='characters__search-section-nav'>
+        <Button
+          onClick={() => setPage(page => page - 1)}
+          text='Prev' disabled={infoPage.prev === null}
+        />
+        <div className='characters__search-section-pagination'><span>Page:</span>{page}</div>
+        <Button
+          onClick={() => setPage(page => page + 1)}
+          text='Next' disabled={infoPage.next === null}
+        />
+      </div>
       <div className='characters__list'>
         {characters.map(character =>
-          <Card character={character} key={character.id}>{character.name}</Card>
+          <Card
+            character={character}
+            key={character.id}
+          >
+            {character.name}
+          </Card>
         )}
       </div>
     </div>
